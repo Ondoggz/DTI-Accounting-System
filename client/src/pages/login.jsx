@@ -30,19 +30,16 @@ export default function Login({ onLoginSuccess }) {
       });
 
       const data = await res.json();
-      console.log(data);
 
       if (!res.ok) {
         alert(data.message || "Login failed");
-        setLoading(false);
         return;
       }
 
-      // store user/session
+      localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      onLoginSuccess();
-
+      onLoginSuccess(data.user);
     } catch (error) {
       console.error(error);
       alert("Server error");

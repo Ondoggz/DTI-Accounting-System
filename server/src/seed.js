@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import User from "src/models/user.js";
+import User from "./models/user.js";
 
 await mongoose.connect(process.env.DATABASE_URL);
 
