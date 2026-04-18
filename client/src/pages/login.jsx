@@ -38,6 +38,7 @@ export default function Login({ onLoginSuccess }) {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("lastActivity", Date.now().toString());
 
       onLoginSuccess(data.user);
     } catch (error) {

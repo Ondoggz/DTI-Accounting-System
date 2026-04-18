@@ -1,6 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Login from "./pages/Login";
+import { authFetch } from "./utils/authFetch";
 import "./index.css";
+
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
 function App() {
   const [message, setMessage] = useState("Loading...");
@@ -8,47 +11,117 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
 
-  useEffect(() => {
-    const savedToken = localStorage.getItem("token");
-    const savedUser = localStorage.getItem("user");
+  const timeoutRef = useRef(null);
 
-    if (savedToken && savedUser) {
-      setIsLoggedIn(true);
-      setCurrentUser(JSON.parse(savedUser));
+  const clearSession = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("lastActivity");
+    setIsLoggedIn(false);
+    setCurrentUser(null);
+  };
+
+  const resetInactivityTimer = () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    localStorage.setItem("lastActivity", Date.now().toString());
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
 
-    fetch(`${import.meta.env.VITE_API_URL}/api`)
-      .then((res) => res.json())
-      .then((data) => {
+    timeoutRef.current = setTimeout(() => {
+      clearSession();
+    }, SESSION_TIMEOUT);
+  };
+
+  useEffect(() => {
+    const initializeApp = async () => {
+      const savedToken = localStorage.getItem("token");
+      const savedUser = localStorage.getItem("user");
+      const lastActivity = localStorage.getItem("lastActivity");
+
+      if (savedToken && savedUser) {
+        const now = Date.now();
+
+        if (!lastActivity || now - Number(lastActivity) > SESSION_TIMEOUT) {
+          clearSession();
+        } else {
+          try {
+            const res = await authFetch(`${import.meta.env.VITE_API_URL}/auth/me`);
+
+            if (!res.ok) {
+              clearSession();
+            } else {
+              const data = await res.json();
+              setIsLoggedIn(true);
+              setCurrentUser(data.user);
+
+              const remainingTime = SESSION_TIMEOUT - (now - Number(lastActivity));
+
+              timeoutRef.current = setTimeout(() => {
+                clearSession();
+              }, remainingTime);
+            }
+          } catch (error) {
+            clearSession();
+          }
+        }
+      }
+
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api`);
+        const data = await res.json();
         setMessage(data.message);
         setDbTime(data.databaseTime);
-      })
-      .catch(() => {
+      } catch {
         setMessage("Failed to connect to backend");
+      }
+    };
+
+    initializeApp();
+
+    const activityEvents = ["mousemove", "keydown", "click", "scroll"];
+
+    const handleActivity = () => {
+      if (localStorage.getItem("token")) {
+        resetInactivityTimer();
+      }
+    };
+
+    activityEvents.forEach((event) => {
+      window.addEventListener(event, handleActivity);
+    });
+
+    return () => {
+      activityEvents.forEach((event) => {
+        window.removeEventListener(event, handleActivity);
       });
+
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, []);
 
   const handleLoginSuccess = (user) => {
     setIsLoggedIn(true);
     setCurrentUser(user);
+    localStorage.setItem("lastActivity", Date.now().toString());
+    resetInactivityTimer();
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setIsLoggedIn(false);
-    setCurrentUser(null);
+    clearSession();
   };
 
-  // 🔐 Show login page
   if (!isLoggedIn) {
     return <Login onLoginSuccess={handleLoginSuccess} />;
   }
 
-  // ✅ Wrapped with container
   return (
-  <div className="app-layout">
-      {/* LEFT SIDE */}
+    <div className="app-layout">
       <div className="main">
         <div className="header">
           <div className="logo">Logo</div>
@@ -67,10 +140,10 @@ function App() {
         <div className="status">
           <p>{message}</p>
           {dbTime && <p>Database time: {dbTime}</p>}
+          {currentUser && <p>Logged in as: {currentUser.username}</p>}
         </div>
       </div>
 
-      {/* RIGHT SIDEBAR */}
       <div className="sidebar">
         <input className="search" placeholder="Search..." />
 
@@ -98,6 +171,5 @@ function App() {
     </div>
   );
 }
-
 
 export default App;

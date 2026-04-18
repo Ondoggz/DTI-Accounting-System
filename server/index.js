@@ -1,8 +1,9 @@
-import 'dotenv/config';
+import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import authRoutes from "./src/routes/auth.js";
+import { protect } from "./src/middleware/authMiddleware.js";
 
 const app = express();
 
@@ -10,7 +11,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ✅ Test route (VERY useful for debugging)
+// Public test route
 app.get("/api", (req, res) => {
   res.json({
     message: "Backend connected successfully",
@@ -18,10 +19,18 @@ app.get("/api", (req, res) => {
   });
 });
 
-// Routes
+// Auth routes
 app.use("/auth", authRoutes);
 
-// ❌ Catch unknown routes (optional but helpful)
+// Example protected route
+app.get("/protected", protect, (req, res) => {
+  res.json({
+    message: "Protected route accessed successfully",
+    user: req.user,
+  });
+});
+
+// Unknown routes
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
@@ -38,5 +47,5 @@ mongoose
   })
   .catch((err) => {
     console.error("MongoDB connection error:", err);
-    process.exit(1); // 🔥 ensures container fails loudly
+    process.exit(1);
   });
