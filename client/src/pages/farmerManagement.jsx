@@ -1,9 +1,29 @@
 import { useState } from "react";
 
+const beanOptions = [
+  "Arabica",
+  "Robusta",
+  "Excelsa",
+  "Liberica",
+  "Mongo Beans",
+];
+
 function FarmerManagement() {
   const [farmers, setFarmers] = useState([
-    { id: 1, name: "Juan Dela Cruz", age: 45, address: "Bukidnon", crop: "Corn" },
-    { id: 2, name: "Maria Santos", age: 39, address: "Misamis Oriental", crop: "Rice" },
+    {
+      id: 1,
+      name: "Juan Dela Cruz",
+      age: 45,
+      address: "Bukidnon",
+      beans: ["Mongo Beans", "Arabica"],
+    },
+    {
+      id: 2,
+      name: "Maria Santos",
+      age: 39,
+      address: "Misamis Oriental",
+      beans: ["Robusta"],
+    },
   ]);
 
   const [form, setForm] = useState({
@@ -11,7 +31,7 @@ function FarmerManagement() {
     name: "",
     age: "",
     address: "",
-    crop: "",
+    beans: [""],
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -20,26 +40,49 @@ function FarmerManagement() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const handleBeanChange = (index, value) => {
+    const updatedBeans = [...form.beans];
+    updatedBeans[index] = value;
+    setForm({ ...form, beans: updatedBeans });
+  };
+
+  const addBeanField = () => {
+    setForm({ ...form, beans: [...form.beans, ""] });
+  };
+
+  const removeBeanField = (index) => {
+    const updatedBeans = form.beans.filter((_, i) => i !== index);
+    setForm({
+      ...form,
+      beans: updatedBeans.length > 0 ? updatedBeans : [""],
+    });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!form.name || !form.age || !form.address || !form.crop) {
-      alert("Please fill in all fields.");
+    const cleanedBeans = form.beans.filter((bean) => bean.trim() !== "");
+
+    if (!form.name || !form.age || !form.address || cleanedBeans.length === 0) {
+      alert("Please fill in all fields and select at least one bean type.");
       return;
     }
 
+    const farmerData = {
+      ...form,
+      age: Number(form.age),
+      beans: cleanedBeans,
+    };
+
     if (isEditing) {
       setFarmers((prev) =>
-        prev.map((farmer) =>
-          farmer.id === form.id ? { ...form, age: Number(form.age) } : farmer
-        )
+        prev.map((farmer) => (farmer.id === form.id ? farmerData : farmer))
       );
       setIsEditing(false);
     } else {
       const newFarmer = {
-        ...form,
+        ...farmerData,
         id: Date.now(),
-        age: Number(form.age),
       };
       setFarmers((prev) => [...prev, newFarmer]);
     }
@@ -49,17 +92,25 @@ function FarmerManagement() {
       name: "",
       age: "",
       address: "",
-      crop: "",
+      beans: [""],
     });
   };
 
   const handleEdit = (farmer) => {
-    setForm(farmer);
+    setForm({
+      id: farmer.id,
+      name: farmer.name,
+      age: farmer.age,
+      address: farmer.address,
+      beans: farmer.beans && farmer.beans.length > 0 ? farmer.beans : [""],
+    });
     setIsEditing(true);
   };
 
   const handleDelete = (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this farmer?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this farmer?"
+    );
     if (confirmDelete) {
       setFarmers((prev) => prev.filter((farmer) => farmer.id !== id));
     }
@@ -77,6 +128,7 @@ function FarmerManagement() {
           value={form.name}
           onChange={handleChange}
         />
+
         <input
           type="number"
           name="age"
@@ -84,6 +136,7 @@ function FarmerManagement() {
           value={form.age}
           onChange={handleChange}
         />
+
         <input
           type="text"
           name="address"
@@ -91,13 +144,65 @@ function FarmerManagement() {
           value={form.address}
           onChange={handleChange}
         />
-        <input
-          type="text"
-          name="crop"
-          placeholder="Main crop"
-          value={form.crop}
-          onChange={handleChange}
-        />
+
+        <div style={{ margin: "10px 0" }}>
+          <p style={{ marginBottom: "8px" }}>Bean Types</p>
+
+          {form.beans.map((bean, index) => (
+            <div
+              key={index}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                marginBottom: "8px",
+              }}
+            >
+              <select
+                value={bean}
+                onChange={(e) => handleBeanChange(index, e.target.value)}
+              >
+                <option value="">Select bean type</option>
+                {beanOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                type="button"
+                onClick={addBeanField}
+                style={{
+                  width: "32px",
+                  height: "32px",
+                  fontSize: "18px",
+                  cursor: "pointer",
+                }}
+                title="Add another bean type"
+              >
+                +
+              </button>
+
+              {form.beans.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeBeanField(index)}
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    fontSize: "18px",
+                    cursor: "pointer",
+                  }}
+                  title="Remove bean type"
+                >
+                  -
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+
         <button type="submit">
           {isEditing ? "Update Farmer" : "Add Farmer"}
         </button>
@@ -109,7 +214,7 @@ function FarmerManagement() {
             <th>Name</th>
             <th>Age</th>
             <th>Address</th>
-            <th>Crop</th>
+            <th>Bean Types</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -120,7 +225,7 @@ function FarmerManagement() {
                 <td>{farmer.name}</td>
                 <td>{farmer.age}</td>
                 <td>{farmer.address}</td>
-                <td>{farmer.crop}</td>
+                <td>{farmer.beans.join(", ")}</td>
                 <td>
                   <button onClick={() => handleEdit(farmer)}>Edit</button>
                   <button onClick={() => handleDelete(farmer.id)}>Delete</button>
