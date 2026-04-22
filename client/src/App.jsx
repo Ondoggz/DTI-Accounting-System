@@ -14,6 +14,30 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [selectedModule, setSelectedModule] = useState(null);
 
+  const [beans, setBeans] = useState([
+    {
+      id: 1,
+      name: "Arabica",
+      pricePerUnit: 180,
+      unit: "kg",
+      farmers: ["Juan Dela Cruz"],
+    },
+    {
+      id: 2,
+      name: "Robusta",
+      pricePerUnit: 150,
+      unit: "kg",
+      farmers: ["Maria Santos"],
+    },
+    {
+      id: 3,
+      name: "Excelsa",
+      pricePerUnit: 170,
+      unit: "kg",
+      farmers: [],
+    },
+  ]);
+
   const timeoutRef = useRef(null);
 
   const clearSession = () => {
@@ -140,11 +164,11 @@ function App() {
 
   const renderMainContent = () => {
     if (selectedModule === "farmers") {
-      return <FarmerManagement />;
+      return <FarmerManagement beans={beans} />;
     }
 
     if (selectedModule === "beans") {
-      return <BeanManagement />;
+      return <BeanManagement beans={beans} setBeans={setBeans} />;
     }
 
     if (selectedModule === "admin") {
