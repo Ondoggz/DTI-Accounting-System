@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import Login from "./pages/login"; // capitalize variable
-import FarmerManagement from "./pages/farmerManagement"; // capitalize variable
+import Login from "./pages/login";
+import FarmerManagement from "./pages/farmerManagement";
+import BeanManagement from "./pages/beanManagement";
 import { authFetch } from "./utils/authFetch";
 import "./index.css";
 
-const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+const SESSION_TIMEOUT = 30 * 60 * 1000;
 
 function App() {
   const [message, setMessage] = useState("Loading...");
@@ -119,7 +120,6 @@ function App() {
     clearSession();
   };
 
-  // ✅ FIXED: use capitalized component
   if (!isLoggedIn) {
     return <Login onLoginSuccess={handleLoginSuccess} />;
   }
@@ -129,6 +129,7 @@ function App() {
   const modules = [
     ...(isAdmin ? ["admin"] : []),
     "farmers",
+    "beans",
     1,
     2,
     3,
@@ -138,9 +139,12 @@ function App() {
   ];
 
   const renderMainContent = () => {
-    // ✅ FIXED: matches import name
     if (selectedModule === "farmers") {
       return <FarmerManagement />;
+    }
+
+    if (selectedModule === "beans") {
+      return <BeanManagement />;
     }
 
     if (selectedModule === "admin") {
@@ -167,6 +171,8 @@ function App() {
                   ? "Admin"
                   : item === "farmers"
                   ? "Farmer Management"
+                  : item === "beans"
+                  ? "Bean Management"
                   : `Module ${item}`}
               </p>
             </div>
