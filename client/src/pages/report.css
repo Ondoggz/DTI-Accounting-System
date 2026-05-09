@@ -1,0 +1,212 @@
+/* Print styles */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  html,
+  body {
+    background: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  #report-content,
+  #report-content * {
+    visibility: visible !important;
+  }
+
+  #report-content {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 12px !important;
+    background: white !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  .report-header,
+  .report-controls,
+  .generate-btn,
+  .print-btn,
+  .error-message {
+    display: none !important;
+  }
+
+  .report-title {
+    margin-bottom: 14px !important;
+    padding-bottom: 10px !important;
+    border-bottom: 1px solid #000 !important;
+  }
+
+  .report-title h2 {
+    font-size: 18px !important;
+    margin-bottom: 6px !important;
+    color: black !important;
+  }
+
+  .report-title p,
+  .generated-date {
+    font-size: 11px !important;
+    color: black !important;
+  }
+
+  .charts-section,
+  .organization-summary,
+  .farmer-table-container,
+  .monthly-breakdown {
+    margin-bottom: 16px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .charts-section h3,
+  .organization-summary h3,
+  .farmer-table-container h3,
+  .monthly-breakdown h3 {
+    font-size: 14px !important;
+    margin-bottom: 8px !important;
+    color: black !important;
+  }
+
+  .charts-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .chart-card {
+    background: white !important;
+    box-shadow: none !important;
+    border: 1px solid #999 !important;
+    border-radius: 0 !important;
+    padding: 8px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .chart-card h4 {
+    font-size: 11px !important;
+    margin-bottom: 6px !important;
+    color: black !important;
+  }
+
+  .chart-wrapper-small {
+    height: 170px !important;
+  }
+
+  .chart-wrapper-large {
+    height: 220px !important;
+  }
+
+  canvas {
+    max-width: 100% !important;
+    max-height: 220px !important;
+  }
+
+  .summary-cards {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .card {
+    background: white !important;
+    color: black !important;
+    border: 1px solid #999 !important;
+    border-radius: 0 !important;
+    padding: 8px !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .card h4 {
+    font-size: 10px !important;
+    margin-bottom: 4px !important;
+    color: black !important;
+  }
+
+  .card p {
+    font-size: 14px !important;
+    color: black !important;
+  }
+
+  .card small {
+    font-size: 9px !important;
+    color: black !important;
+  }
+
+  .bean-breakdown {
+    background: white !important;
+    padding: 8px !important;
+    border-radius: 0 !important;
+    margin-top: 8px !important;
+  }
+
+  .bean-breakdown h4 {
+    font-size: 12px !important;
+    color: black !important;
+  }
+
+  .table-responsive {
+    overflow: visible !important;
+  }
+
+  .report-table {
+    width: 100% !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    font-size: 10px !important;
+    page-break-inside: auto !important;
+  }
+
+  .report-table th,
+  .report-table td {
+    border: 1px solid #000 !important;
+    padding: 4px !important;
+    color: black !important;
+  }
+
+  .report-table th {
+    background: #eee !important;
+    color: black !important;
+    font-size: 9px !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .report-table tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .report-table tbody tr:hover {
+    background: white !important;
+  }
+
+  .report-table tfoot tr.total-row {
+    background: #eee !important;
+    color: black !important;
+  }
+
+  .sales-amount {
+    color: black !important;
+  }
+
+  .no-data {
+    color: black !important;
+    padding: 20px !important;
+  }
+}
